@@ -6,8 +6,8 @@ import { Blog } from "../models/blog.model.js";
 import { User } from "../models/user.model.js";
 
 const createBlog = asyncHandler(async (req, res) => {
-    const { title, content } = req.body;
-
+    const {title,content}=req.body
+    
     // Validate the data
     if (!title) {
         throw new ApiError(400, "Title is required");
