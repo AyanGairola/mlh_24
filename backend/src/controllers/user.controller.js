@@ -26,19 +26,19 @@ const registerUser=asyncHandler(async (req,res)=>{
     //checking for dp
     const dpLocalPath=req.file?.path
 
-    
+    console.log("Local file saved");
+
     //uploading on cloudinary
     const dp= await uploadOnCloudinary(dpLocalPath)
-
+    console.log("Uploaded on cloudinary");
 
     if(!dp){
-        console.log('if not dp');
         throw new ApiError(400,"Error while uploading on cloudinary")
     }
 
 
-
     //checking if user exists or not
+    console.log("Finding if user exists or not");
     const existedUser=await User.findOne({
         $or:[{username},{email}]
     })
@@ -46,20 +46,19 @@ const registerUser=asyncHandler(async (req,res)=>{
         console.log(existedUser)
         console.log("hhhhh")
         throw new ApiError(409,"User already exists")
+        throw new ApiError(400,"User already exists")
     }
+    
+    console.log("User does not exists so creating one");
 
-
-    console.log("User exists");
     //storing data in database
     const user= await User.create({
         username: username.toLowerCase(),
         email,
         password,
         dp: dp.url || "cld-sample-"
-
     })
 
-    console.log("Databse mai ban ");
     //removing password and refresh tokens from response
     const createdUser= await User.findById(user._id).select(
         "-password -refreshToken"
@@ -148,6 +147,9 @@ const refreshAccessTokenEndPoint=asyncHandler(async(req,res)=>{
 })
 
 const loginUser=asyncHandler(async(req,res)=>{
+   
+    // Taking data from req.body
+    
     const {username,email,password}=req.body
     if (!(username || email)) {
         throw new ApiError(400,"Username or email is required")
@@ -163,6 +165,7 @@ const loginUser=asyncHandler(async(req,res)=>{
         throw new ApiError(404,"User is not registered")
     }
 
+
     // checking the password
     const isPasswordValid=await user.isPasswordCorrect(password)
 
@@ -172,7 +175,8 @@ const loginUser=asyncHandler(async(req,res)=>{
 
 
     //refresh and access tokens and sending them to cookies
-    const {accessToken,refreshToken}=await generateAccessAndRefreshTokens(user._id) 
+
+    const {accessToken,refreshToken}=await generateAccessAndRefreshTokens(user._id) // interacting with the database "can" take time
 
     const loggedInUser=await User.findById(user._id).select("-password -refreshToken")
 
@@ -202,11 +206,17 @@ const loginUser=asyncHandler(async(req,res)=>{
 })
 
 
+
 const logoutUser=asyncHandler(async(req,res)=>{
     
+
+    const user = await User.findOne({
+        refreshToken: req.cookies.refreshToken,
+    })
+
     //removing refresh token from database
     await User.findByIdAndUpdate(
-        req.user._id,
+        user._id,
         {
             $unset:{
                 refreshToken:1 
