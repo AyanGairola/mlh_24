@@ -209,7 +209,7 @@ const loginUser=asyncHandler(async(req,res)=>{
 
 const logoutUser=asyncHandler(async(req,res)=>{
     
-
+    console.log(req);
     const user = await User.findOne({
         refreshToken: req.cookies.refreshToken,
     })

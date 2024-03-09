@@ -4,9 +4,11 @@ import {ApiResponse} from "../utils/ApiResponse.js"
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { Blog } from "../models/blog.model.js";
 import { User } from "../models/user.model.js";
+import { Image } from "../models/image.model.js";
 
 const createBlog = asyncHandler(async (req, res) => {
-    const {title,content}=req.body
+    const {title,content,imageId}=req.body
+    console.log(req.body);
     
     // Validate the data
     if (!title) {
@@ -16,29 +18,20 @@ const createBlog = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Content is required");
     }
 
-    const featuredImageLocalPath=req.file?.path
-    if(!featuredImageLocalPath){
-        throw new ApiError(400,"featured image is required")
-    }
-
-    // Upload featured image to Cloudinary
-    const featuredImage = await uploadOnCloudinary(featuredImageLocalPath);
-    if (!featuredImage) {
-        throw new ApiError(400, "Error while uploading featured image to Cloudinary");
-    }
-
-    // Find the owner (user) based on the refresh token
+    // // Find the owner (user) based on the refresh token
     const user = await User.findOne({ refreshToken: req.cookies.refreshToken });
     if (!user) {
         throw new ApiError(404, "User not found");
     }
+
+    const image= await Image.findById(imageId)
 
     // Create a new blog
     const blog = await Blog.create({
         title: title,
         content: content,
         owner: user._id,
-        featuredImage: featuredImage.url
+        image: image._id
     });
 
     if (!blog) {

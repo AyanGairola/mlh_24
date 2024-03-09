@@ -13,13 +13,13 @@ const blogSchema= new mongoose.Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref:"User"
     },
-    featuredImage:{
-        type:String,
-        required:true
-    },
     status:{
         type:Boolean,
         default: true
+    },
+    image:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Image"
     }
 })
 

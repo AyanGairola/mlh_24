@@ -18,9 +18,11 @@ app.use(cookieParser())
 //routes import
 import userRoutes from "./routes/user.routes.js"
 import blogRoutes from "./routes/blog.routes.js"
+import imageRoutes from "./routes/image.routes.js"
 
 //routes declare
 app.use("/users",userRoutes)
 app.use("/blogs",blogRoutes)
+app.use("/images",imageRoutes)
 
 export default app;
