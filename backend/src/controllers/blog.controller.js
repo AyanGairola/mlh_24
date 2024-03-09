@@ -5,54 +5,50 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { Blog } from "../models/blog.model.js";
 import { User } from "../models/user.model.js";
 
-const createBlog=asyncHandler(async(req,res)=>{
-    const {title,content}=req.body
-    if(!title){
-        throw new ApiError(400,"Title is required")
-    }
-    if(!content){
-        throw new ApiError(400,"Title is required")
-    }
+const createBlog = asyncHandler(async (req, res) => {
+    const { title, content } = req.body;
 
-    const featuredImageLocalPath=req.files[0]?.path
-    if(!featuredImageLocalPath){
-        throw new ApiError(400,"featured image is required")
+    // Validate the data
+    if (!title) {
+        throw new ApiError(400, "Title is required");
+    }
+    if (!content) {
+        throw new ApiError(400, "Content is required");
     }
 
-    //uploading on cloudinary
-    const featuredImage=await uploadOnCloudinary(featuredImageLocalPath)
-
-    if(!featuredImage){
-        throw new ApiError(400,"Error while uploading on cloudinary")
+    // Check for featured image
+    const featuredImageLocalPath = req.file?.path;
+    if (!featuredImageLocalPath) {
+        throw new ApiError(400, "Featured image is required");
     }
 
-    //getting the owner
-    const user = await User.findOne({
-        refreshToken: req.cookies.refreshToken,
-    })
+    // Upload featured image to Cloudinary
+    const featuredImage = await uploadOnCloudinary(featuredImageLocalPath);
+    if (!featuredImage) {
+        throw new ApiError(400, "Error while uploading featured image to Cloudinary");
+    }
+
+    // Find the owner (user) based on the refresh token
+    const user = await User.findOne({ refreshToken: req.cookies.refreshToken });
     if (!user) {
-        throw new ApiError(404, "User not found")
+        throw new ApiError(404, "User not found");
     }
 
-    const blog=await Blog.create({
-        title:title,
-        content:content,
-        owner:user._id,
-        featuredImage:featuredImage.url
-    })
+    // Create a new blog
+    const blog = await Blog.create({
+        title: title,
+        content: content,
+        owner: user._id,
+        featuredImage: featuredImage.url
+    });
 
-    if(!blog){
-        throw new ApiError(500,"Error while creating the blog")
+    if (!blog) {
+        throw new ApiError(500, "Error while creating the blog");
     }
 
-    //returning the response
-
-    return(
-        res
-        .status(200)
-        .json(new ApiResponse(200,blog,"Blog created successfully"))
-    )
-})
+    // Return success response
+    return res.status(201).json(new ApiResponse(201, blog, "Blog created successfully"));
+});
 
 const updateBlog = asyncHandler(async (req, res) => {
 
