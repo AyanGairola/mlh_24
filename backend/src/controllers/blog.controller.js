@@ -14,7 +14,7 @@ const createBlog=asyncHandler(async(req,res)=>{
         throw new ApiError(400,"Title is required")
     }
 
-    const featuredImageLocalPath=req.files[0]?.path
+    const featuredImageLocalPath=req.file?.path
     if(!featuredImageLocalPath){
         throw new ApiError(400,"featured image is required")
     }

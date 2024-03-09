@@ -43,6 +43,8 @@ const registerUser=asyncHandler(async (req,res)=>{
         $or:[{username},{email}]
     })
     if(existedUser){
+        console.log(existedUser)
+        console.log("hhhhh")
         throw new ApiError(409,"User already exists")
     }
 
@@ -67,7 +69,7 @@ const registerUser=asyncHandler(async (req,res)=>{
     if(!createdUser){
         throw new ApiError(500,"Something went wrong while registering the user")
     }
-
+    console.log(createdUser)
 
     //return response
     return(
@@ -238,7 +240,7 @@ const logoutUser=asyncHandler(async(req,res)=>{
 
 
 const getCurrentUser=asyncHandler(async(req,res)=>{
-
+    console.log(req)
     const user = await User.findOne({
         refreshToken: req.cookies.refreshToken,
     }).select("-password -refreshToken")
