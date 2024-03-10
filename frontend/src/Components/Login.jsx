@@ -28,11 +28,19 @@ function Login() {
                 }
             })
             const user = await userData.json()
+            // Store the refresh token in local storage
+            localStorage.setItem('refreshToken', user.data.refreshToken);
+
+            // Store the access token in local storage
+            localStorage.setItem('accessToken', user.data.accessToken);
+            console.log(user);
             if (user) {
                 console.log(user)
-                dispatch(authLogin(user.user))
+                dispatch(authLogin(user.data.user))
                 navigate("/all-posts")
+
             }
+
         } catch (error) {
             setError(error.message)
         } finally {

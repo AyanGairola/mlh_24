@@ -4,10 +4,23 @@ import { useDispatch } from 'react-redux'
 import {logout} from "../../store/authSlice"
 function LogoutBtn() {
     const dispatch = useDispatch()
-    const logoutHandler = () => {
-        authService.logout().then(()=>{
-            dispatch(logout())
-        })
+    const logoutHandler = async() => {
+      const data=await fetch("http://localhost:8000/users/logout",{
+        method:"POST",
+        body:JSON.stringify({
+          refreshToken:localStorage.getItem("refreshToken")
+        }),
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+      }
+    })
+    dispatch(logout())
+
+    localStorage.removeItem('refreshToken');
+
+    // Store the access token in local storage
+    localStorage.removeItem('accessToken');
     }
   return (
     <button

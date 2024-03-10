@@ -180,17 +180,11 @@ const loginUser=asyncHandler(async(req,res)=>{
 
     const loggedInUser=await User.findById(user._id).select("-password -refreshToken")
 
-    const options={
-        httpOnly:true,
-        secure:true
-    }
 
     //returning the response
     return (
         res
         .status(200)
-        .cookie("accessToken",accessToken,options)
-        .cookie("refreshToken",refreshToken,options)
         .json(
             new ApiResponse(
                 200,
@@ -208,10 +202,9 @@ const loginUser=asyncHandler(async(req,res)=>{
 
 
 const logoutUser=asyncHandler(async(req,res)=>{
-    
-    console.log(req);
+    const {refreshToken}=req.body
     const user = await User.findOne({
-        refreshToken: req.cookies.refreshToken,
+        refreshToken: refreshToken,
     })
 
     //removing refresh token from database
@@ -226,17 +219,9 @@ const logoutUser=asyncHandler(async(req,res)=>{
         }
     )
 
-    // clearing cookies
-    const options={
-        httpOnly:true,
-        secure:true
-    }
-
     return (
         res
         .status(200)
-        .clearCookie("accessToken", options)
-        .clearCookie("refreshToken", options)
         .json(
             new ApiResponse(
                 200,
