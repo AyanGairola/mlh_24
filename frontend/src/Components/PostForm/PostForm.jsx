@@ -22,7 +22,7 @@ function PostForm({ post }) {
     const submit = async (data) => {
         setLoading(true)
         if (post) {
-            const blogData = await fetch("http://localhost:8000/blogs/" + post._id, {
+            const blogData = await fetch("https://blogify-sz1l.onrender.com/blogs/" + post._id, {
                 method: "PATCH",
                 body: JSON.stringify({
                     content: data.content,
@@ -44,12 +44,12 @@ function PostForm({ post }) {
             
             const formData = new FormData()
             formData.append("image", data.image[0])
-            const image = await fetch("http://localhost:8000/images/upload-image", {
+            const image = await fetch("https://blogify-sz1l.onrender.com/images/upload-image", {
                 method: "POST",
                 body: formData
             })
             const imageURL = await image.json()
-            const blogData = await fetch("http://localhost:8000/blogs/", {
+            const blogData = await fetch("https://blogify-sz1l.onrender.com/blogs/", {
                 method: "POST",
                 body: JSON.stringify({
                     title: data.title,

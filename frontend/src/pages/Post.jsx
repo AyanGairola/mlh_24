@@ -16,7 +16,7 @@ export default function Post() {
     useEffect(() => {
         if (slug) {
             (async () => {
-                const data = await fetch("http://localhost:8000/blogs/" + slug, {
+                const data = await fetch("https://blogify-sz1l.onrender.com/blogs/" + slug, {
                     method: "POST",
                     body:JSON.stringify({
                         refreshToken:localStorage.getItem("refreshToken"),
@@ -38,7 +38,7 @@ export default function Post() {
     }, [slug, navigate]);
 
     const deletePost = async () => {
-        const data = await fetch("http://localhost:8000/blogs/" + post._id, {
+        const data = await fetch("https://blogify-sz1l.onrender.com/blogs/" + post._id, {
             method: "DELETE",
             body:JSON.stringify({
                 refreshToken:localStorage.getItem("refreshToken"),

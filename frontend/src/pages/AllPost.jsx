@@ -5,7 +5,7 @@ function AllPosts() {
     const [posts, setPosts] = useState([])
     useEffect(() => {
         (async () => {
-            const allPosts = await fetch("http://localhost:8000/blogs/get-all-blogs")
+            const allPosts = await fetch("https://blogify-sz1l.onrender.com/blogs/get-all-blogs")
             const postsData = await allPosts.json()
             setPosts(postsData.data)
             console.log(postsData)

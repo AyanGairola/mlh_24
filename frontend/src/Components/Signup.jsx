@@ -22,7 +22,7 @@ function Signup() {
             formData.append("password", data.password)
             formData.append("email", data.email)
             formData.append("dp", data.image[0])
-            const userData = await fetch("http://localhost:8000/users/register", {
+            const userData = await fetch("https://blogify-sz1l.onrender.com/users/register", {
                 method: "POST",
                 body: formData
             })

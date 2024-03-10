@@ -16,7 +16,7 @@ function App() {
         console.log("here")
         setLoading(true)
         try {
-          const userData = await fetch("http://localhost:8000/users/current-user", {
+          const userData = await fetch("https://blogify-sz1l.onrender.com/users/current-user", {
             method: "POST",
             headers: {
               'Accept': 'application/json',

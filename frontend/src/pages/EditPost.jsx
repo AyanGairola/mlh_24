@@ -9,7 +9,7 @@ function EditPost() {
     useEffect(() => {
         if (slug) {
             (async () => {
-                const data = await fetch("http://localhost:8000/blogs/" + slug, {
+                const data = await fetch("https://blogify-sz1l.onrender.com/blogs/" + slug, {
                     method: "POST",
                     body:JSON.stringify({
                         refreshToken:localStorage.getItem("refreshToken"),

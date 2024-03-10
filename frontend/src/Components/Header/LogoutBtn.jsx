@@ -4,7 +4,7 @@ import {logout} from "../../store/authSlice"
 function LogoutBtn() {
     const dispatch = useDispatch()
     const logoutHandler = async() => {
-      const data=await fetch("http://localhost:8000/users/logout",{
+      const data=await fetch("https://blogify-sz1l.onrender.com/users/logout",{
         method:"POST",
         body:JSON.stringify({
           refreshToken:localStorage.getItem("refreshToken"),
