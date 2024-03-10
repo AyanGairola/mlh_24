@@ -235,9 +235,8 @@ const logoutUser=asyncHandler(async(req,res)=>{
 
 
 const getCurrentUser=asyncHandler(async(req,res)=>{
-    console.log(req)
     const user = await User.findOne({
-        refreshToken: req.cookies.refreshToken,
+        refreshToken: req.body.refreshToken,
     }).select("-password -refreshToken")
 
     if (!user) {

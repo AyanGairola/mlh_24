@@ -1,14 +1,12 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { Blog } from "../models/blog.model.js";
 import { User } from "../models/user.model.js";
 import { Image } from "../models/image.model.js";
 
 const createBlog = asyncHandler(async (req, res) => {
     const {title,content,imageId}=req.body
-    console.log(req.body);
     
     // Validate the data
     if (!title) {
@@ -31,7 +29,8 @@ const createBlog = asyncHandler(async (req, res) => {
         title: title,
         content: content,
         owner: user._id,
-        image: image._id
+        image: image._id,
+        imageURL: image.image
     });
 
     if (!blog) {
@@ -58,7 +57,7 @@ const updateBlog = asyncHandler(async (req, res) => {
 
 
     const user = await User.findOne({
-        refreshToken: req.cookies.refreshToken,
+        refreshToken: req.body.refreshToken,
     })
     if (!user) {
         throw new ApiError(404, "User not found")
@@ -72,7 +71,7 @@ const updateBlog = asyncHandler(async (req, res) => {
             throw new ApiError(400,"Please provide content to update")
         }
 
-        blog.content=blog
+        blog.content=content
         await blog.save({validateBeforeSave:false})
 
         return(
@@ -88,7 +87,6 @@ const updateBlog = asyncHandler(async (req, res) => {
 
 const getAllPublishedBlogs = asyncHandler(async (req, res) => {
     const blogs = await Blog.find({ status: true }).populate('owner', '-password')
-
     if (!blogs) {
         throw new ApiError(404, "No published blogs found")
     }
@@ -134,6 +132,7 @@ const getBlogById=asyncHandler(async(req,res)=>{
         }
     
         const blog=await Blog.findById(blogId)
+
         if(!blog){
             throw new ApiError(400,"Cant find blog")
         }
@@ -141,7 +140,7 @@ const getBlogById=asyncHandler(async(req,res)=>{
         return(
             res
             .status(200)
-            .json(new ApiResponse(200,blog,"blog fetched successfully"))
+            .json(new ApiResponse(200,{...blog},"blog fetched successfully"))
         )
 
     } catch (error) {

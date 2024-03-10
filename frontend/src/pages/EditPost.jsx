@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Container, PostForm } from '../Components'
-import appwriteService from "../appwrite/config"
 
 function EditPost() {
     const [post, setPost] = useState(null)
@@ -9,12 +8,26 @@ function EditPost() {
     const navigate = useNavigate()
     useEffect(() => {
         if (slug) {
-            appwriteService.getPost(slug).then((post) => {
-                if (post) {
-                    setPost(post)
-                }
-            })
-        } else navigate('/')
+            (async () => {
+                const data = await fetch("http://localhost:8000/blogs/" + slug, {
+                    method: "POST",
+                    body:JSON.stringify({
+                        refreshToken:localStorage.getItem("refreshToken"),
+                        accessToken: localStorage.getItem("accessToken")
+                      }),
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    }
+
+                })
+                const postData = await data.json()
+                if (postData.data) {
+                    setPost({ ...postData.data._doc})
+                    console.log(postData)
+                } else navigate("/")
+            }) ()
+        } else navigate("/");
     }, [slug, navigate])
 
     return post ? (

@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { RTE, Button, Input, Select, Loader } from "../index"
-import appwriteService from "../../appwrite/config"
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
@@ -23,31 +22,51 @@ function PostForm({ post }) {
     const submit = async (data) => {
         setLoading(true)
         if (post) {
-            const file = data.image[0] ? await appwriteService.uploadFile(data.image[0]) : null
-            if (file) {
-                appwriteService.deleteFile(post.featuredImage)
-            }
-            const dbPost = await appwriteService.updatePost(post.$id, {
-                ...data,
-                featuredImage: file ? file.$id : undefined
+            const blogData = await fetch("http://localhost:8000/blogs/" + post._id, {
+                method: "PATCH",
+                body: JSON.stringify({
+                    content: data.content,
+                    accessToken: localStorage.getItem("accessToken"),
+                    refreshToken: localStorage.getItem("refreshToken")
+                }),
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                }
             })
-            if (dbPost) {
+            const blog = await blogData.json()
+            console.log(blog)
+            if (blog) {
+                navigate(`/post/${blog.data._id}`)
                 setLoading(false)
-                navigate(`/post/${post.$id}`)
             }
         } else {
             
             const formData = new FormData()
-            formData.append("title", data.title)
-            formData.append("content", data.content)
-            formData.append("img", data.image[0])
-            const blogData = await fetch("http://localhost:8000/blogs/", {
+            formData.append("image", data.image[0])
+            const image = await fetch("http://localhost:8000/images/upload-image", {
                 method: "POST",
                 body: formData
             })
-            console.log(blogData)
-            if (blogData) {
-                // navigate(`/post/${blog.$id}`)
+            const imageURL = await image.json()
+            const blogData = await fetch("http://localhost:8000/blogs/", {
+                method: "POST",
+                body: JSON.stringify({
+                    title: data.title,
+                    content: data.content,
+                    imageId: imageURL.data._id,
+                    accessToken: localStorage.getItem("accessToken"),
+                    refreshToken: localStorage.getItem("refreshToken")
+                }),
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                }
+            })
+            const blog = await blogData.json()
+            console.log(blog)
+            if (blog) {
+                navigate(`/post/${blog.data._id}`)
                 setLoading(false)
             }
 
@@ -107,7 +126,7 @@ function PostForm({ post }) {
                 {post && (
                     <div className="w-full mb-4">
                         <img
-                            src={appwriteService.getFilePreview(post.featuredImage)}
+                            src={post.imageURL}
                             alt={post.title}
                             className="rounded-lg"
                         />

@@ -20,6 +20,10 @@ const blogSchema= new mongoose.Schema({
     image:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"Image"
+    },
+    imageURL: {
+        type: String,
+        required: true
     }
 })
 

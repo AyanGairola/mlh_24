@@ -1,15 +1,16 @@
 import React, {useState, useEffect} from 'react'
 import { Container, PostCard } from '../Components'
-import appwriteService from "../appwrite/config";
 
 function AllPosts() {
     const [posts, setPosts] = useState([])
     useEffect(() => {
-        appwriteService.getPosts([]).then((posts) => {
-            if (posts) {
-                setPosts(posts.documents)
-            }
-        })
+        (async () => {
+            const allPosts = await fetch("http://localhost:8000/blogs/get-all-blogs")
+            const postsData = await allPosts.json()
+            setPosts(postsData.data)
+            console.log(postsData)
+
+        })()
     }, [])
    
   return (
@@ -20,7 +21,7 @@ function AllPosts() {
                 posts.length>0? 
                 <div className='flex flex-wrap flex-row'>
                 {posts.map((post) => (
-                    <div key={post.$id} className='p-2 w-full sm:w-1/3 xl:w-1/4'>
+                    <div key={post._id} className='p-2 w-full sm:w-1/3 xl:w-1/4'>
                         <PostCard {...post} />
                     </div>
                 ))}

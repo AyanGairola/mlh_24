@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import appwriteService from "../appwrite/config";
 import { Button, Container } from "../Components";
 import parse from "html-react-parser";
 import { useSelector } from "react-redux";
@@ -12,24 +11,46 @@ export default function Post() {
 
     const userData = useSelector((state) => state.auth.userData);
 
-    const isAuthor = post && userData ? post.userId === userData.$id : false;
+    const isAuthor = post && userData ? post.userId === userData._id : false;
 
     useEffect(() => {
         if (slug) {
-            appwriteService.getPost(slug).then((post) => {
-                if (post) setPost(post);
-                else navigate("/");
-            });
+            (async () => {
+                const data = await fetch("http://localhost:8000/blogs/" + slug, {
+                    method: "POST",
+                    body:JSON.stringify({
+                        refreshToken:localStorage.getItem("refreshToken"),
+                        accessToken: localStorage.getItem("accessToken")
+                      }),
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    }
+
+                })
+                const postData = await data.json()
+                if (postData.data) {
+                    setPost({ ...postData.data._doc})
+                    console.log(postData)
+                } else navigate("/")
+            }) ()
         } else navigate("/");
     }, [slug, navigate]);
 
-    const deletePost = () => {
-        appwriteService.deletePost(post.$id).then((status) => {
-            if (status) {
-                appwriteService.deleteFile(post.featuredImage);
-                navigate("/");
+    const deletePost = async () => {
+        const data = await fetch("http://localhost:8000/blogs/" + post._id, {
+            method: "DELETE",
+            body:JSON.stringify({
+                refreshToken:localStorage.getItem("refreshToken"),
+                accessToken: localStorage.getItem("accessToken")
+                }),
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
             }
-        });
+
+        })
+        navigate("/")
     };
 
     return post ? (
@@ -38,18 +59,13 @@ export default function Post() {
             <Container>
                 <div className="w-full flex justify-center mb-4 relative border rounded-xl max-h-80">
                     <img
-                        src={appwriteService.getFilePreview(post.featuredImage)}
+                        src={post.imageURL}
                         alt={post.title}
                         className="rounded-xl object-cover"
                     />
 
                     {isAuthor && (
                         <div className="absolute right-6 top-6">
-                            <Link to={`/edit-post/${post.$id}`}>
-                                <Button bgColor="bg-green-500" className="mr-3 rounded-lg">
-                                    Edit
-                                </Button>
-                            </Link>
                             <Button bgColor="bg-red-500" className="rounded-lg" onClick={deletePost}>
                                 Delete
                             </Button>

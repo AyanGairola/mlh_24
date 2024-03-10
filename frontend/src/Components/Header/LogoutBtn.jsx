@@ -1,5 +1,4 @@
 import React from 'react'
-import authService from '../../appwrite/auth'
 import { useDispatch } from 'react-redux'
 import {logout} from "../../store/authSlice"
 function LogoutBtn() {
@@ -8,7 +7,8 @@ function LogoutBtn() {
       const data=await fetch("http://localhost:8000/users/logout",{
         method:"POST",
         body:JSON.stringify({
-          refreshToken:localStorage.getItem("refreshToken")
+          refreshToken:localStorage.getItem("refreshToken"),
+          accessToken: localStorage.getItem("accessToken")
         }),
         headers: {
           'Accept': 'application/json',

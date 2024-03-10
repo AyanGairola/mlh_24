@@ -1,36 +1,46 @@
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
-import authService from "./appwrite/auth"
 import { login, logout } from './store/authSlice'
 import { Footer, Header } from './Components'
 import { Outlet } from 'react-router-dom'
 
 
 function App() {
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const dispatch = useDispatch()
 
   useEffect(() => {
     (async () => {
-      try {
-        const userData = await fetch("http://localhost:8000/users/current-user", {
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-          mode: 'cors',
-          redirect: 'follow',
-          credentials: 'include'
-        })
-        console.log(userData)
-      } catch (err) {
-        dispatch(logout())
-      } finally {
-        setLoading(false)
+      console.log(localStorage)
+      if (localStorage.getItem("refreshToken")) {
+        console.log("here")
+        setLoading(true)
+        try {
+          const userData = await fetch("http://localhost:8000/users/current-user", {
+            method: "POST",
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              refreshToken: localStorage.getItem("refreshToken"),
+              accessToken: localStorage.getItem("accessToken")
+            })
+          })
+          const data = await userData.json()
+          console.log(data)
+          dispatch(login(data.data))
+        } catch (err) {
+          console.log(err)
+          dispatch(logout())
+        } finally {
+          setLoading(false)
+        }
       }
+
     })()
 
-  }, [])
+  }, [localStorage])
 
   return !loading ? (
     <div className='min-h-screen flex flex-wrap content-between text-white bg-[#00040F] '>
